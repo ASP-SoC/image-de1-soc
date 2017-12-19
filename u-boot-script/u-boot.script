@@ -1,0 +1,57 @@
+################################################################################
+echo --- Resetting Env variables ---
+
+# reset environment variables to default
+env default -a
+
+echo --- Setting Env variables ---
+
+# Set the kernel image
+setenv bootimage /boot/uvmlinuz;
+
+# Set the initial ramdisk
+setenv initrd /boot/uinitrd;
+
+# Set the devicetree image
+setenv fdtfile socfpga.dtb;
+
+# Set root partition
+setenv mmcroot /dev/mmcblk0p2
+
+# set kernel boot arguments, then boot the kernel
+setenv mmcboot 'setenv bootargs mem=1024M console=ttyS0,115200 root=${mmcroot} rw rootwait; bootz ${loadaddr} ${ramdisk_addr_r} ${fdt_addr_r}';
+
+# load linux kernel image and device tree to memory
+setenv mmcload 'mmc rescan; ext4load mmc 0:2 ${loadaddr} ${bootimage}; ext4load mmc 0:2 ${ramdisk_addr_r} ${initrd}; fatload mmc 0:1 ${fdt_addr_r} ${fdtfile}'
+
+# standard input/output
+setenv stderr serial
+setenv stdin serial
+setenv stdout serial
+
+# Choose your own MAC address
+setenv ethaddr 02:03:06:FF:00:01
+
+# save environment to sdcard (not needed, but useful to avoid CRC errors on a new sdcard)
+saveenv
+
+################################################################################
+echo --- Programming FPGA ---
+
+# load rbf from FAT partition into memory
+fatload mmc 0:1 ${loadaddr} socfpga.rbf;
+
+# program FPGA
+fpga load 0 ${loadaddr} ${filesize};
+
+# enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges
+bridge enable;
+
+################################################################################
+echo --- Booting Linux ---
+
+# load linux kernel image and device tree to memory
+run mmcload;
+
+# set kernel boot arguments, then boot the kernel
+run mmcboot;

@@ -1,0 +1,6 @@
+*.scr
+*.img
+*.img.gz
+*.md5
+/mnt/
+

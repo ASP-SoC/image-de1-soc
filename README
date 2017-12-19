@@ -1,0 +1,5 @@
+        Debian image for DE1 SoC
+
+This is a minimal Debian image for the Terasic DE1 SoC board. The image was created
+for the HSD/LDD5 lecture at the University of Applied Science Upper Austria Hagenberg.
+It is a generic image. Thus, it can and shall be used for other applications too.
